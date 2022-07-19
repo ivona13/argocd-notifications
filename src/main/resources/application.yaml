@@ -1,0 +1,11 @@
+server:
+  port: 8082
+
+kubernetes:
+  kube-api: https://127.0.0.1:50113
+  token: ${TOKEN}
+
+argo:
+  url: https://localhost:8080/
+  username: admin
+  password: ${ARGO_PASSWORD}
