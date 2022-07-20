@@ -61,8 +61,7 @@ public class ArgoCDServiceImpl implements ArgoCDService {
         try {
             applications = applicationsResponse.getBody().getObject().getJSONArray("items");
         } catch (Exception e) {
-            System.out.println(token);
-            System.out.println(applicationsResponse.getBody().toString());
+            // TODO: Handle this
         }
         return applications;
     }
