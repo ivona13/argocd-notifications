@@ -1,15 +1,19 @@
 ### Prerequisites:
 * cluster (minikube)
-* set <code>kube_api</code> in application.yaml
-  ```
-   kubectl cluster-info
-  ```
-* set JWT for minikube - environment variable <code>$TOKEN</code>
-  ```
-  JWT_TOKEN_DEFAULT_DEFAULT=$(kubectl get secrets \
-    $(kubectl get serviceaccounts/default -o jsonpath='{.secrets[0].name}') \
-    -o jsonpath='{.data.token}' | base64 --decode)
-  ```
+* set <code>kube_api</code> in the application.yaml
+
+    - After running <code>kubectl cluster-info</code>, you will get the following:
+      ```
+      Kubernetes control plane is running at: xxxxxxxx.
+      ```
+      Copy the response to the application.yaml file.
+* set JWT for minikube as an environment variable <code>$TOKEN</code>
+    - To get the JWT, run the following command: 
+    ```
+    kubectl get secrets \
+      $(kubectl get serviceaccounts/default -o jsonpath='{.secrets[0].name}') \
+      -o jsonpath='{.data.token}' | base64 --decode
+    ```
 
 * set argo url in application.yaml
 
@@ -71,6 +75,6 @@ data:
       - app-sync-succeeded
       when: app.status.operationState.phase in ['Succeeded']
 ```
-  * List of Argo CD applications is listed below
+  * List of Argo CD applications is shown below
   * Enter application you want to subscribe:
   * Enter webhook name:
