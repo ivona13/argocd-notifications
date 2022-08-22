@@ -1,13 +1,14 @@
 ### Prerequisites:
-* cluster (minikube)
-* set <code>kube_api</code> in the application.yaml
+* Cluster
+  
+
+* Set environment variable<code>$KUBE_API</code>
 
     - After running <code>kubectl cluster-info</code>, you will get the following:
       ```
       Kubernetes control plane is running at: xxxxxxxx.
       ```
-      Copy the response to the application.yaml file.
-* set JWT for minikube as an environment variable <code>$TOKEN</code>
+* Set environment variable <code>$TOKEN</code> - JWT for minikube
     - To get the JWT, run the following command: 
     ```
     kubectl get secrets \
@@ -15,13 +16,13 @@
       -o jsonpath='{.data.token}' | base64 --decode
     ```
 
-* set argo url in application.yaml
+* Set environment variables <code>$ARGO_URL</code>, <code>$ARGO_USERNAME</code>, <code>$ARGO_PASSWORD</code>
+* All environment variables can be overridden inside the application
+  
 
-* set argo password as environment variable <code>$ARGO_PASSWORD</code>
+* To enable applying configMap manifest files to your cluster, do the following:
 
-* to enable applying configMap manifest files to your minikube cluster, you have to do the following:
-
-    1. Create a Cluster role with the resource you need
+    1. Create a Cluster role with the resource you need (configmaps in this example)
     
     ```
     kubectl create clusterrole deployer --verb=get,list,watch,create,delete,patch,update --resource=configmaps
@@ -31,50 +32,48 @@
   	kubectl create clusterrolebinding deployer-srvacct-default-binding --clusterrole=deployer --serviceaccount=default:default
     ```
   
-### Flow:
-* Enter argocd-notifications-cm yaml file to apply to the cluster
-
-For example:
-```yaml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: argocd-notifications-cm
-  namespace: argocd
-data:
-  context: |
-    argocdUrl: https://localhost:8080
-  service.webhook.github-webhook: |
-    url: https://api.github.com
-    headers:
-    - name: Authorization
-      value: token $TOKEN
-    subscriptions: |
-      - recipients
-        - github-webhook
-        triggers:
-        - on-sync-succeeded
-  template.app-sync-succeeded: |
-    webhook:
-      github-webhook:
-        method: POST
-        path: /repos/{{call .repo.FullNameByRepoURL .app.spec.source.repoURL}}/statuses/{{.app.status.operationState.operation.sync.revision}}
-        body: |
-          {
-            {{if eq .app.status.operationState.phase "Running"}} "state": "pending"{{end}}
-            {{if eq .app.status.operationState.phase "Succeeded"}} "state": "success"{{end}}
-            {{if eq .app.status.operationState.phase "Error"}} "state": "error"{{end}}
-            {{if eq .app.status.operationState.phase "Failed"}} "state": "error"{{end}},
-            "description": "ArgoCD",
-            "target_url": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
-            "context": "continuous-delivery/{{.app.metadata.name}}"
-          }
-  trigger.on-sync-succeeded: |
-    - description: Application syncing has succeeded
-      send:
-      - app-sync-succeeded
-      when: app.status.operationState.phase in ['Succeeded']
-```
-  * List of Argo CD applications is shown below
-  * Enter application you want to subscribe:
-  * Enter webhook name:
+* Enter <code>argocd-notifications-cm</code> yaml file to apply to the cluster or skip it if it already exists,
+    e.g.
+    ```yaml
+    kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: argocd-notifications-cm
+      namespace: argocd
+    data:
+      context: |
+        argocdUrl: https://localhost:8080
+      service.webhook.github-webhook: |
+        url: https://api.github.com
+        headers:
+        - name: Authorization
+          value: token $TOKEN
+        subscriptions: |
+          - recipients
+            - github-webhook
+            triggers:
+            - on-sync-succeeded
+      template.app-sync-succeeded: |
+        webhook:
+          github-webhook:
+            method: POST
+            path: /repos/{{call .repo.FullNameByRepoURL .app.spec.source.repoURL}}/statuses/{{.app.status.operationState.operation.sync.revision}}
+            body: |
+              {
+                {{if eq .app.status.operationState.phase "Running"}} "state": "pending"{{end}}
+                {{if eq .app.status.operationState.phase "Succeeded"}} "state": "success"{{end}}
+                {{if eq .app.status.operationState.phase "Error"}} "state": "error"{{end}}
+                {{if eq .app.status.operationState.phase "Failed"}} "state": "error"{{end}},
+                "description": "ArgoCD",
+                "target_url": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+                "context": "continuous-delivery/{{.app.metadata.name}}"
+              }
+      trigger.on-sync-succeeded: |
+        - description: Application syncing has succeeded
+          send:
+          - app-sync-succeeded
+          when: app.status.operationState.phase in ['Succeeded']
+    ```
+* List of Argo CD applications is shown below
+* Enter application you want to subscribe
+* Enter service name, value and triggers you want to apply
