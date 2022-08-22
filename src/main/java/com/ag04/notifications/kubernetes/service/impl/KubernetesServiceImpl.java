@@ -1,5 +1,6 @@
 package com.ag04.notifications.kubernetes.service.impl;
 
+import com.ag04.notifications.kubernetes.Property;
 import com.ag04.notifications.kubernetes.service.KubernetesService;
 
 import kong.unirest.HttpResponse;
@@ -14,25 +15,50 @@ public class KubernetesServiceImpl implements KubernetesService {
 
     String kubeApi;
 
-    String token;
+    String kubeToken;
 
     String kubeUrl;
 
-    public KubernetesServiceImpl(@Value("${kubernetes.kube-api}") String kubeApi, @Value("${kubernetes.token}") String token) {
+    public KubernetesServiceImpl(@Value("${kubernetes.kube-api}") String kubeApi, @Value("${kubernetes.token}") String kubeToken) {
         this.kubeApi = kubeApi;
-        this.token = token;
+        this.kubeToken = kubeToken;
         this.kubeUrl = kubeApi + "/api/v1/";
     }
 
     @Override
     public String applyYaml(String yaml) throws UnirestException {
         Unirest.config().verifySsl(false);
-        HttpResponse<JsonNode> jsonResponse = Unirest.put(kubeUrl + "namespaces/argocd/configmaps/argocd-notifications-cm")
-                .header("Authorization", "Bearer " + token)
-                .header("Content-Type", "application/yaml")
-                .body(yaml)
+        HttpResponse<JsonNode> configMapExists = Unirest.get(kubeUrl + "namespaces/argocd/configmaps/argocd-notifications-cm")
+                .header("Authorization", "Bearer " + kubeToken)
                 .asJson();
 
+        HttpResponse<JsonNode> jsonResponse;
+        if (configMapExists.getStatus() == 404) {
+            jsonResponse = Unirest.post(kubeUrl + "namespaces/argocd/configmaps")
+                    .header("Authorization", "Bearer " + kubeToken)
+                    .header("Content-Type", "application/yaml")
+                    .body(yaml)
+                    .asJson();
+        } else {
+            jsonResponse = Unirest.put(kubeUrl + "namespaces/argocd/configmaps/argocd-notifications-cm")
+                    .header("Authorization", "Bearer " + kubeToken)
+                    .header("Content-Type", "application/yaml")
+                    .body(yaml)
+                    .asJson();
+        }
+
         return jsonResponse.getStatusText();
+    }
+
+    @Override
+    public void updateK8sProperty(Property property, String value) {
+        switch (property) {
+            case KUBE_URL:
+                this.kubeUrl = value;
+            case KUBE_TOKEN:
+                this.kubeToken = value;
+            default:
+                break;
+        }
     }
 }

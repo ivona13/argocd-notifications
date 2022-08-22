@@ -1,5 +1,6 @@
 package com.ag04.notifications.kubernetes.service;
 
+import com.ag04.notifications.kubernetes.Property;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,5 +9,7 @@ import java.util.List;
 public interface ArgoCDService {
     List<String> listApplications();
 
-    String subscribeApplication(String applicationName, String webhookName);
+    String subscribeApplication(String applicationName, String serviceName, List<String> triggers, String subscriptionValue);
+
+    void updateArgoProperty(Property property, String value);
 }
