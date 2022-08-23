@@ -1,6 +1,6 @@
 package com.ag04.notifications.kubernetes.service.impl;
 
-import com.ag04.notifications.kubernetes.Property;
+import com.ag04.notifications.kubernetes.EnvironmentVariable;
 import com.ag04.notifications.kubernetes.service.KubernetesService;
 
 import kong.unirest.HttpResponse;
@@ -51,8 +51,8 @@ public class KubernetesServiceImpl implements KubernetesService {
     }
 
     @Override
-    public void updateK8sProperty(Property property, String value) {
-        switch (property) {
+    public void updateK8sProperty(EnvironmentVariable env, String value) {
+        switch (env) {
             case KUBE_URL:
                 this.kubeUrl = value;
             case KUBE_TOKEN:

@@ -1,6 +1,6 @@
 package com.ag04.notifications;
 
-import com.ag04.notifications.kubernetes.Property;
+import com.ag04.notifications.kubernetes.EnvironmentVariable;
 import com.ag04.notifications.kubernetes.service.ArgoCDService;
 import com.ag04.notifications.kubernetes.service.KubernetesService;
 import org.springframework.boot.CommandLineRunner;
@@ -106,14 +106,14 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
 
         String input;
         System.out.print("Enter ArgoCD url (if you want to skip, press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(Property.ARGO_URL, input);
+        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_URL, input);
         System.out.print("Enter ArgoCD username (if you want to skip, press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(Property.ARGO_USERNAME, input);
+        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_USERNAME, input);
         System.out.print("Enter ArgoCD password (if you want to skip, press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(Property.ARGO_PASSWORD, input);
+        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_PASSWORD, input);
         System.out.print("Enter Kubernetes API url (if you want to skip, press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(Property.KUBE_URL, input);
+        if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_URL, input);
         System.out.print("Enter Kubernetes token (if you want to skip, press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(Property.KUBE_TOKEN, input);
+        if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_TOKEN, input);
     }
 }

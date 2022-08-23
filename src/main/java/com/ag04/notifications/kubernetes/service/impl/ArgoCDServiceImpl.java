@@ -1,6 +1,6 @@
 package com.ag04.notifications.kubernetes.service.impl;
 
-import com.ag04.notifications.kubernetes.Property;
+import com.ag04.notifications.kubernetes.EnvironmentVariable;
 import com.ag04.notifications.kubernetes.service.ArgoCDService;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -54,8 +54,8 @@ public class ArgoCDServiceImpl implements ArgoCDService {
     }
 
     @Override
-    public void updateArgoProperty(Property property, String value) {
-        switch (property) {
+    public void updateArgoProperty(EnvironmentVariable env, String value) {
+        switch (env) {
             case ARGO_USERNAME:
                 this.argoUsername = value;
             case ARGO_PASSWORD:

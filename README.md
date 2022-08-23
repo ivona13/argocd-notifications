@@ -2,13 +2,13 @@
 * Cluster
   
 
-* Set environment variable<code>$KUBE_API</code>
+* Set environment variable<code>KUBE_API</code>
 
     - After running <code>kubectl cluster-info</code>, you will get the following:
       ```
       Kubernetes control plane is running at: xxxxxxxx.
       ```
-* Set environment variable <code>$TOKEN</code> - JWT for minikube
+* Set environment variable <code>TOKEN</code> - JWT for minikube
     - To get the JWT, run the following command: 
     ```
     kubectl get secrets \
@@ -16,9 +16,9 @@
       -o jsonpath='{.data.token}' | base64 --decode
     ```
 
-* Set environment variables <code>$ARGO_URL</code>, <code>$ARGO_USERNAME</code>, <code>$ARGO_PASSWORD</code>
+* Set environment variables <code>ARGO_URL</code>, <code>ARGO_PASSWORD</code>
+* Set environment variable <code>ARGO_USERNAME</code> or use default 'admin'
 * All environment variables can be overridden inside the application
-  
 
 * To enable applying configMap manifest files to your cluster, do the following:
 
@@ -77,3 +77,9 @@
 * List of Argo CD applications is shown below
 * Enter application you want to subscribe
 * Enter service name, value and triggers you want to apply
+
+### Build and run
+* Build the application: <code>./gradlew clean build</code>
+* Run the application: 
+  <code>KUBE_API=$KUBE_API KUBE_TOKEN=$KUBE_TOKEN ARGO_URL=$ARGO_URL ARGO_PASSWORD=$ARGO_PASSWORD ./gradlew run 
+  --console=plain</code>

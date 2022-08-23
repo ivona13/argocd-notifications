@@ -3,7 +3,7 @@ server:
 
 kubernetes:
   kube-api: ${KUBE_API}
-  token: ${TOKEN}
+  token: ${KUBE_TOKEN}
 
 argo:
   url: ${ARGO_URL:https://localhost:8080/}
