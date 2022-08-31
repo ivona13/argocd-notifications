@@ -67,6 +67,20 @@ public class ArgoCDServiceImpl implements ArgoCDService {
         }
     }
 
+    @Override
+    public String getArgoProperty(EnvironmentVariable env) {
+        switch (env) {
+            case ARGO_USERNAME:
+                return argoUsername;
+            case ARGO_PASSWORD:
+                return argoPassword;
+            case ARGO_URL:
+                return argoUrl;
+            default:
+                return "";
+        }
+    }
+
     private JSONArray getApplicationsAsJsonObjects (String token) {
         HttpResponse<JsonNode> applicationsResponse = Unirest.get(argoUrl + "api/v1/applications")
                 .header("accept", "application/json")

@@ -12,4 +12,6 @@ public interface ArgoCDService {
     String subscribeApplication(String applicationName, String serviceName, List<String> triggers, String subscriptionValue);
 
     void updateArgoProperty(EnvironmentVariable env, String value);
+
+    String getArgoProperty(EnvironmentVariable env);
 }

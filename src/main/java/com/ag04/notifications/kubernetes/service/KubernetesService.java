@@ -8,4 +8,6 @@ public interface KubernetesService {
     String applyYaml(String yaml) throws UnirestException;
 
     void updateK8sProperty(EnvironmentVariable env, String value);
+
+    String getK8sProperty(EnvironmentVariable env);
 }

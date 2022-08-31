@@ -38,7 +38,6 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
             System.out.println("---------------------------------");
             generateApplicationOptions();
             System.out.print("Do you want to repeat the process? [Y/N]? >> ");
-            System.out.println("---------------------------------");
         } while (scanner.nextLine().equalsIgnoreCase("Y"));
         System.exit(0);
     }
@@ -92,7 +91,7 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
         List<String> triggers = new ArrayList<>();
         String answer;
         for (String triggerOption : triggerOptions) {
-            System.out.print(String.format("Do you want to add '%s' trigger? (Y/N) >> ", triggerOption));
+            System.out.print(String.format("Do you want to add '%s' trigger? [Y/N] >> ", triggerOption));
             answer = scanner.next();
             if (answer.equalsIgnoreCase("Y")) triggers.add(triggerOption);
         }
@@ -105,15 +104,24 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
         scanner.useDelimiter("\\r?\\n");
 
         String input;
-        System.out.print("Enter ArgoCD url (if you want to skip, press Enter) >> ");
+        System.out.print("Enter ArgoCD url (if you want to use default [" +
+                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_URL) + "], press Enter) >> ");
         if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_URL, input);
-        System.out.print("Enter ArgoCD username (if you want to skip, press Enter) >> ");
+
+        System.out.print("Enter ArgoCD username (if you want to use default [" +
+                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_USERNAME )+ "], press Enter) >> ");
         if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_USERNAME, input);
-        System.out.print("Enter ArgoCD password (if you want to skip, press Enter) >> ");
+
+        System.out.print("Enter ArgoCD password (if you want to use default [" +
+                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_PASSWORD )+ "], press Enter) >> ");
         if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_PASSWORD, input);
-        System.out.print("Enter Kubernetes API url (if you want to skip, press Enter) >> ");
+
+        System.out.print("Enter Kubernetes API url (if you want to use default [" +
+                kubernetesService.getK8sProperty(EnvironmentVariable.KUBE_URL) + "], press Enter) >> ");
         if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_URL, input);
-        System.out.print("Enter Kubernetes token (if you want to skip, press Enter) >> ");
+
+        System.out.print("Enter Kubernetes token (if you want to use default [," +
+                kubernetesService.getK8sProperty(EnvironmentVariable.KUBE_TOKEN) + "], press Enter) >> ");
         if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_TOKEN, input);
     }
 }

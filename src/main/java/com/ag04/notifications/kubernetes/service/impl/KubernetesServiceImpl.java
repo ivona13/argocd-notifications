@@ -61,4 +61,16 @@ public class KubernetesServiceImpl implements KubernetesService {
                 break;
         }
     }
+
+    @Override
+    public String getK8sProperty(EnvironmentVariable env) {
+        switch (env) {
+            case KUBE_URL:
+                return kubeUrl;
+            case KUBE_TOKEN:
+                return kubeToken;
+            default:
+                return "";
+        }
+    }
 }
