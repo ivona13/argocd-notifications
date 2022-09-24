@@ -1,10 +1,25 @@
 ### Prerequisites:
 * Cluster
-  
+
+* To enable applying configMap manifest files to your cluster, do the following:
+
+    1. Create a Cluster role with the resource you need (configmaps in this example)
+
+    ```
+    kubectl create clusterrole deployer --verb=get,list,watch,create,delete,patch,update --resource=configmaps
+    ```
+    2. Bind it to your service account
+    ```
+  	kubectl create clusterrolebinding deployer-srvacct-default-binding --clusterrole=deployer --serviceaccount=default:default
+    ```
 
 * Set environment variable<code>KUBE_API</code>
 
-    - After running <code>kubectl cluster-info</code>, you will get the following:
+    - After running 
+      ```
+      kubectl cluster-info
+      ```
+      you will get the following:
       ```
       Kubernetes control plane is running at: xxxxxxxx.
       ```
@@ -20,20 +35,10 @@
 * Set environment variable <code>ARGO_USERNAME</code> or use default 'admin'
 * All environment variables can be overridden inside the application
 
-* To enable applying configMap manifest files to your cluster, do the following:
-
-    1. Create a Cluster role with the resource you need (configmaps in this example)
-    
-    ```
-    kubectl create clusterrole deployer --verb=get,list,watch,create,delete,patch,update --resource=configmaps
-    ```
-    2. Bind it to your service account
-    ```
-  	kubectl create clusterrolebinding deployer-srvacct-default-binding --clusterrole=deployer --serviceaccount=default:default
-    ```
+* Enter path name to <code>argocd-notifications-cm</code> yaml file to apply to the cluster or skip it if you already have one
   
-* Enter <code>argocd-notifications-cm</code> yaml file to apply to the cluster or skip it if it already exists,
-    e.g.
+    Example of the <code>argocd-notifications-cm</code> yaml:
+
     ```yaml
     kind: ConfigMap
     apiVersion: v1

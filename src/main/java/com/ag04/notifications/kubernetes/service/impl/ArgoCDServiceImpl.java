@@ -1,6 +1,7 @@
 package com.ag04.notifications.kubernetes.service.impl;
 
 import com.ag04.notifications.kubernetes.EnvironmentVariable;
+import com.ag04.notifications.kubernetes.SubscriptionTrigger;
 import com.ag04.notifications.kubernetes.service.ArgoCDService;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
@@ -8,6 +9,7 @@ import kong.unirest.Unirest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,14 +45,14 @@ public class ArgoCDServiceImpl implements ArgoCDService {
     }
 
     @Override
-    public String subscribeApplication(String applicationName, String serviceName, List<String> triggers, String subscriptionValue) {
+    public ResponseEntity subscribeApplication(String applicationName, String serviceName, List<SubscriptionTrigger> triggers, String subscriptionValue) {
         String token = generateToken();
 
         HttpResponse<JsonNode> applicationResponse = getApplicationInfo(applicationName, token);
         JSONObject updatedApp = addSubscriptions(applicationResponse, serviceName, triggers, subscriptionValue);
         HttpResponse<JsonNode> updatedApplication = updateApplication(applicationName, updatedApp, token);
 
-        return updatedApplication.getStatusText();
+        return ResponseEntity.ok(updatedApplication.getStatusText());
     }
 
     @Override
@@ -81,7 +83,7 @@ public class ArgoCDServiceImpl implements ArgoCDService {
         }
     }
 
-    private JSONArray getApplicationsAsJsonObjects (String token) {
+    private JSONArray getApplicationsAsJsonObjects(String token) {
         HttpResponse<JsonNode> applicationsResponse = Unirest.get(argoUrl + "api/v1/applications")
                 .header("accept", "application/json")
                 .header("Authorization", "Bearer " + token)
@@ -93,6 +95,7 @@ public class ArgoCDServiceImpl implements ArgoCDService {
         } catch (Exception e) {}
         return applications;
     }
+
     private HttpResponse<JsonNode> getApplicationInfo(String applicationName, String token) {
         HttpResponse<JsonNode> applicationResponse = Unirest.get(argoUrl + "api/v1/applications/" + applicationName)
                 .header("accept", "application/json")
@@ -112,7 +115,7 @@ public class ArgoCDServiceImpl implements ArgoCDService {
         return updateAppResponse;
     }
 
-    private JSONObject addSubscriptions(HttpResponse<JsonNode> applicationResponse, String serviceName, List<String> triggers, String subscriptionValue) {
+    private JSONObject addSubscriptions(HttpResponse<JsonNode> applicationResponse, String serviceName, List<SubscriptionTrigger> triggers, String subscriptionValue) {
         JSONObject app = applicationResponse.getBody().getObject();
         JSONObject metadata = app.getJSONObject("metadata");
         JSONObject annotations;
@@ -123,8 +126,8 @@ public class ArgoCDServiceImpl implements ArgoCDService {
             annotations = metadata.getJSONObject("annotations");
         }
         JSONObject updatedData = annotations;
-        for (String trigger : triggers) {
-            updatedData = updatedData.put("notifications.argoproj.io/subscribe." + trigger + "." + serviceName, subscriptionValue);
+        for (SubscriptionTrigger trigger : triggers) {
+            updatedData = updatedData.put("notifications.argoproj.io/subscribe." + trigger.getTriggerValue() + "." + serviceName, subscriptionValue);
         }
         metadata.put("annotations", updatedData);
         app.put("metadata", metadata);

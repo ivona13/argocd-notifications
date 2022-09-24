@@ -1,22 +1,22 @@
 package com.ag04.notifications;
 
 import com.ag04.notifications.kubernetes.EnvironmentVariable;
+import com.ag04.notifications.kubernetes.SubscriptionTrigger;
 import com.ag04.notifications.kubernetes.service.ArgoCDService;
 import com.ag04.notifications.kubernetes.service.KubernetesService;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 @Component
 public class ConfigurationApplyRunner implements CommandLineRunner {
 
     KubernetesService kubernetesService;
-
     ArgoCDService argoCDService;
-
-    final List<String> triggerOptions = Arrays.asList("on-created", "on-deleted", "on-deployed",
-            "on-health-degraded", "on-sync-failed", "on-sync-running", "on-sync-status-unknown", "on-sync-succeeded");
 
     public ConfigurationApplyRunner(KubernetesService kubernetesService, ArgoCDService argoCDService) {
         this.kubernetesService = kubernetesService;
@@ -44,18 +44,12 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
 
     private void applyNotificationsConfigMap() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter argocd-notifications-cm yaml file to apply to the cluster >> ");
+        System.out.print("Enter path to argocd-notifications-cm yaml file to apply to the cluster >> ");
 
-        StringBuilder sb = new StringBuilder();
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            sb.append(line).append("\n");
-            if (line.isEmpty()) {
-                break;
-            }
-        }
-        String result = kubernetesService.applyYaml(sb.toString());
-        System.out.println(result);
+        String yamlFilePath = scanner.nextLine();
+        ResponseEntity result = kubernetesService.applyYaml(yamlFilePath);
+
+        System.out.println(result.getStatusCode());
     }
 
     private void generateApplicationOptions() {
@@ -88,15 +82,15 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
         String webhook = scanner.nextLine();
         System.out.print("Enter subscription value >> ");
         String subscriptionValue = scanner.nextLine();
-        List<String> triggers = new ArrayList<>();
+        List<SubscriptionTrigger> triggers = new ArrayList<>();
         String answer;
-        for (String triggerOption : triggerOptions) {
+        for (SubscriptionTrigger triggerOption : SubscriptionTrigger.class.getEnumConstants()) {
             System.out.print(String.format("Do you want to add '%s' trigger? [Y/N] >> ", triggerOption));
             answer = scanner.next();
             if (answer.equalsIgnoreCase("Y")) triggers.add(triggerOption);
         }
-        String subscriptionResult = argoCDService.subscribeApplication(application, webhook, triggers, subscriptionValue);
-        System.out.println(subscriptionResult);
+        ResponseEntity subscriptionResult = argoCDService.subscribeApplication(application, webhook, triggers, subscriptionValue);
+        System.out.println(subscriptionResult.getStatusCode());
     }
 
     private void overrideEnvironmentVariables() {
@@ -106,22 +100,27 @@ public class ConfigurationApplyRunner implements CommandLineRunner {
         String input;
         System.out.print("Enter ArgoCD url (if you want to use default [" +
                 argoCDService.getArgoProperty(EnvironmentVariable.ARGO_URL) + "], press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_URL, input);
+        if (!(input = scanner.nextLine()).isEmpty())
+            argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_URL, input);
 
         System.out.print("Enter ArgoCD username (if you want to use default [" +
-                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_USERNAME )+ "], press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_USERNAME, input);
+                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_USERNAME) + "], press Enter) >> ");
+        if (!(input = scanner.nextLine()).isEmpty())
+            argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_USERNAME, input);
 
         System.out.print("Enter ArgoCD password (if you want to use default [" +
-                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_PASSWORD )+ "], press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_PASSWORD, input);
+                argoCDService.getArgoProperty(EnvironmentVariable.ARGO_PASSWORD) + "], press Enter) >> ");
+        if (!(input = scanner.nextLine()).isEmpty())
+            argoCDService.updateArgoProperty(EnvironmentVariable.ARGO_PASSWORD, input);
 
         System.out.print("Enter Kubernetes API url (if you want to use default [" +
                 kubernetesService.getK8sProperty(EnvironmentVariable.KUBE_URL) + "], press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_URL, input);
+        if (!(input = scanner.nextLine()).isEmpty())
+            kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_URL, input);
 
-        System.out.print("Enter Kubernetes token (if you want to use default [," +
+        System.out.print("Enter Kubernetes token (if you want to use default [" +
                 kubernetesService.getK8sProperty(EnvironmentVariable.KUBE_TOKEN) + "], press Enter) >> ");
-        if (!(input = scanner.nextLine()).isEmpty()) kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_TOKEN, input);
+        if (!(input = scanner.nextLine()).isEmpty())
+            kubernetesService.updateK8sProperty(EnvironmentVariable.KUBE_TOKEN, input);
     }
 }

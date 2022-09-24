@@ -20,6 +20,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'com.konghq:unirest-java:2.3.14'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'io.fabric8:kubernetes-client:6.1.1'
 }
 
 tasks.named('test') {
