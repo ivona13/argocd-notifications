@@ -1,5 +1,6 @@
 ### Prerequisites:
 * Cluster
+* ArgoCD installed in the <code>argocd</code> namespace of the cluster
 
 * To enable applying configMap manifest files to your cluster, do the following:
 
