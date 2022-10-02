@@ -24,13 +24,14 @@
       ```
       Kubernetes control plane is running at: xxxxxxxx.
       ```
-* Set environment variable <code>TOKEN</code> - JWT for minikube
+* Set environment variable <code>TOKEN</code> - Service Account Token
     - To get the JWT, run the following command: 
     ```
     kubectl get secrets \
       $(kubectl get serviceaccounts/default -o jsonpath='{.secrets[0].name}') \
       -o jsonpath='{.data.token}' | base64 --decode
     ```
+<i> Note: For Kubernetes >= 1.24, tokens are no longer auto-generated for every ServiceAccount. You should create them manually.</i>
 
 * Set environment variables <code>ARGO_URL</code>, <code>ARGO_PASSWORD</code>
 * Set environment variable <code>ARGO_USERNAME</code> or use default 'admin'
